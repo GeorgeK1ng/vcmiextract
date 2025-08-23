@@ -88,6 +88,12 @@ void vcmiextract::extract_file(const std::filesystem::path & source, const std::
 		return;
 	}
 
+	if (string_iequals(extension, ".pcx"))
+	{
+		vcmiextract::save_file(file, destination, source.filename().string());
+		return;
+	}
+
 	printf("unrecognized file type '%s'\n", source.string().c_str());
 }
 
