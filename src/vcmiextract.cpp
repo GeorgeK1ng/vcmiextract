@@ -88,7 +88,7 @@ void vcmiextract::extract_file(const std::filesystem::path & source, const std::
 		return;
 	}
 
-	if (string_iequals(extension, ".pcx"))
+	if (string_iequals(extension, ".pcx") || string_iequals(extension, ".p32"))
 	{
 		vcmiextract::save_file(file, destination, source.filename().string());
 		return;
