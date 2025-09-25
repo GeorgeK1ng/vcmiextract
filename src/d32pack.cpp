@@ -1,4 +1,6 @@
 
+#include <array>
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
@@ -143,7 +145,7 @@ static std::vector<FrameRec> parse_animation_json(const std::filesystem::path& d
     while (std::getline(ifs, line)) {
         auto s = line;
         // crude strip
-        s.erase(std::remove_if(s.begin(), s.end(), [](unsigned char c){ return c=='\r' || c=='\n' || c=='\t'; }), s.end());
+        s.erase(std::remove_if(s.begin(), s.end(), [](unsigned char c){ return c=='\\r' || c=='\\n' || c=='\\t'; }), s.end());
         auto find_val = [&](const char* key)->std::string {
             auto pos = s.find(key);
             if (pos == std::string::npos) return {};
@@ -166,8 +168,8 @@ static std::vector<FrameRec> parse_animation_json(const std::filesystem::path& d
         if (s.find("\"file\"") != std::string::npos) {
             std::string v = find_val("\"file\"");
             // remove quotes and trailing commas/braces
-            size_t q1 = v.find('"');
-            size_t q2 = v.find('"', q1+1);
+            size_t q1 = v.find('\"');
+            size_t q2 = v.find('\"', q1+1);
             if (q1 != std::string::npos && q2 != std::string::npos) {
                 cur_file = v.substr(q1+1, q2-(q1+1));
                 have_file = true;
@@ -183,7 +185,7 @@ static int pack_d32f(const std::filesystem::path& dir, const std::filesystem::pa
     // Load frames
     auto frames = parse_animation_json(dir);
     if (frames.empty()) {
-        std::cerr << "No frames found in " << dir << "\n";
+        std::cerr << "No frames found in " << dir << "\\n";
         return 1;
     }
     // Group by group id, sort by frame index within
@@ -207,7 +209,7 @@ static int pack_d32f(const std::filesystem::path& dir, const std::filesystem::pa
     write_u32_le(fp, groups.size()>1 ? 22u : 1u); // unknown7 as in extractor
 
     // Build directory tables in memory to compute offsets
-    struct GroupDir { uint32_t header_size; uint32_t index; uint32_t size; uint32_t unknown2; std::vector<EntryDir> entries; };
+    struct GroupDir { uint32_t header_size; uint32_t index; uint32_t size; uint32_t unknown2; std::vector<EntryDir> entries; uint32_t offsets_pos; };
     std::vector<GroupDir> gdirs;
     gdirs.reserve(groups.size());
     for (auto& kv : groups) {
@@ -220,7 +222,7 @@ static int pack_d32f(const std::filesystem::path& dir, const std::filesystem::pa
             EntryDir ed{};
             std::string nm = kv.second[i].internal_name;
             std::memset(ed.name.data(), 0, ed.name.size());
-            std::memcpy(ed.name.data(), nm.c_str(), std::min(nm.size(), ed.name.size()-1));
+            std::memcpy(ed.name.data(), nm.c_str(), (std::min)(nm.size(), ed.name.size()-1));
             ed.offset = 0; // fill later
             gd.entries[i] = ed;
         }
@@ -291,7 +293,7 @@ static int pack_d32f(const std::filesystem::path& dir, const std::filesystem::pa
 int main(int argc, char** argv)
 {
     if (argc < 3) {
-        std::cerr << "Usage:\n  d32pack <folder_with_pngs_and_animation.json> <out.def>\n";
+        std::cerr << "Usage:\\n  d32pack <folder_with_pngs_and_animation.json> <out.def>\\n";
         return 1;
     }
     std::filesystem::path in_dir = argv[1];
@@ -299,7 +301,7 @@ int main(int argc, char** argv)
     try {
         return pack_d32f(in_dir, out_file);
     } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << "\n";
+        std::cerr << "Error: " << e.what() << "\\n";
         return 1;
     }
 }
