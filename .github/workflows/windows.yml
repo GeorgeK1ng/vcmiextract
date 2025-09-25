@@ -36,4 +36,4 @@ jobs:
       with:
         name: vcmiextract-windows-x64.zip
         compression-level: 9
-        path: ./build/Release/vcmiextract.exe
+        path: ./build/Release/*.exe
