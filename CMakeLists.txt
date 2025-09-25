@@ -44,3 +44,15 @@ install(TARGETS vcmiextract RUNTIME DESTINATION .)
 set(CPACK_PACKAGE_NAME "vcmiextract")
 set(CPACK_PACKAGE_VERSION "1.0")
 include(CPack)
+
+
+add_executable(d32pack
+	src/d32pack.cpp
+)
+
+target_link_libraries(d32pack
+	PRIVATE
+		PNG::PNG
+)
+
+install(TARGETS d32pack RUNTIME DESTINATION .)
