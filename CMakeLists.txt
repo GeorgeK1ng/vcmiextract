@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
+find_package(LibLZMA REQUIRED)
 
 if (MSVC)
 	add_compile_options(/W4)
@@ -37,6 +38,7 @@ target_link_libraries(vcmiextract
 	PRIVATE
 		ZLIB::ZLIB
 		PNG::PNG
+		LibLZMA::LibLZMA
 )
 
 install(TARGETS vcmiextract RUNTIME DESTINATION .)
