@@ -107,15 +107,17 @@ static void process(std::string filename)
 
 	if(!std::filesystem::is_regular_file(source_file))
 	{
-		printf("file '%s' not found!\n", filename.c_str());
+		printf("File '%s' not found!\n", filename.c_str());
 		return;
 	}
 
 	if(std::filesystem::is_regular_file(target_dir))
 	{
-		printf("output path for '%s' is not a directory!\n", filename.c_str());
+		printf("Output path for '%s' is not a directory!\n", filename.c_str());
 		return;
 	}
+
+	printf("Extracting '%s' -> '%s'\n", source_file.string().c_str(), target_dir.string().c_str());
 
 	vcmiextract::extract_file(source_file, target_dir);
 }
