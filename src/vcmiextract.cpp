@@ -48,6 +48,8 @@ void vcmiextract::save_file(memory_file & data, const std::filesystem::path & de
 
 	data.set(0);
 
+	printf("Saving '%s'\n", full_path.string().c_str());
+
 	fwrite(data.ptr(), 1, data.size(), fp);
 	fclose(fp);
 }
