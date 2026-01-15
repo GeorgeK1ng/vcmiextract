@@ -18,6 +18,8 @@ void vcmiextract::save_image(const basic_image_ptr & data, const std::filesystem
 
 	std::filesystem::path output_name = destination / filename;
 
+	printf("Saving image '%s'\n", output_name.string().c_str());
+	
 	file_format_png::optimize_and_save(data, output_name.replace_extension(".png"));
 }
 
