@@ -3,6 +3,18 @@
 #include <array>
 #include <map>
 #include <vector>
+#include <cctype>
+#include <algorithm>
+
+static bool char_equals_ignore_case(char a, char b)
+{
+    return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
+}
+
+static bool string_equals_ignore_case(const std::string& a, const std::string& b)
+{
+    return std::equal(a.begin(), a.end(), b.begin(), b.end(), char_equals_ignore_case);
+}
 
 basic_image_ptr vcmiextract::load_image_pcx(memory_file & input)
 {
@@ -277,6 +289,12 @@ static void extract_def_h3(memory_file & file, const std::filesystem::path & des
 			}
 
 			basic_image_ptr image = load_image_def(file, header, palette);
+            std::filesystem::path output_name(entry.name.data());
+
+            if (string_equals_ignore_case(output_name.extension().string(), ".pcx") || string_equals_ignore_case(output_name.extension().string(), ".bmp"))
+                output_name.replace_extension(".png");
+            else
+                output_name.replace_extension(output_name.extension().string() + ".png");
 
 			file_listing += "\t\t{ ";
 			if (groups.size() > 1)
@@ -290,10 +308,10 @@ static void extract_def_h3(memory_file & file, const std::filesystem::path & des
 			file_listing += std::to_string(i);
 
 			file_listing += ", \"file\" : \"";
-			file_listing += std::filesystem::path(entry.name.data()).replace_extension(".png").string();
+            file_listing += output_name.string();
 			file_listing += "\" },\n";
 
-			vcmiextract::save_image(image, destination, entry.name.data());
+            vcmiextract::save_image(image, destination, output_name.filename().string());
 		}
 	}
 
