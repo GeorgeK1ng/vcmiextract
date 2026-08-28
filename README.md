@@ -28,6 +28,20 @@ Images - will be converted to .png format
 
 Drag-and-drop file(s) that you want to extract on executable. Extracted files will be placed in a directory with same name as input file
 
+## Building - Windows x86 (Visual Studio 2019)
+
+Install the x86 static variants of the dependencies with vcpkg, then configure CMake for the Win32 platform and the Visual Studio 2019 (`v142`) toolset:
+
+```bat
+vcpkg install zlib libpng liblzma --triplet x86-windows-static
+cmake -S . -B build-x86 -A Win32 -T v142 ^
+  -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake ^
+  -DVCPKG_TARGET_TRIPLET=x86-windows-static
+cmake --build build-x86 --config Release
+```
+
+The resulting 32-bit executable is located at `build-x86\Release\vcmiextract.exe`.
+
 ## Usage - Command line
 
 ```
