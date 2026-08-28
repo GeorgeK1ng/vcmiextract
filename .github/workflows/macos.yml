@@ -1,0 +1,47 @@
+name: Build macOS package
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (macOS latest)
+    runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Select vcpkg architecture
+      run: |
+        case "$(uname -m)" in
+          arm64) triplet=arm64-osx ;;
+          x86_64) triplet=x64-osx ;;
+          *) echo "Unsupported macOS architecture: $(uname -m)" >&2; exit 1 ;;
+        esac
+        echo "VCPKG_TARGET_TRIPLET=$triplet" >> "$GITHUB_ENV"
+
+    - name: VCPKG
+      run: vcpkg install zlib libpng liblzma --triplet "$VCPKG_TARGET_TRIPLET"
+
+    - name: Configure
+      run: cmake -S . -B ./build -G Ninja -DCMAKE_BUILD_TYPE=Release --toolchain="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET="$VCPKG_TARGET_TRIPLET"
+
+    - name: Build
+      run: cmake --build ./build
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: vcmiextract-macos-${{ env.VCPKG_TARGET_TRIPLET }}.zip
+        compression-level: 9
+        path: ./build/vcmiextract
